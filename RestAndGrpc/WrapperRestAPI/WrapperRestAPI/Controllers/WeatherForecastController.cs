@@ -22,6 +22,8 @@ public class WeatherForecastController : ControllerBase
         "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
     };
 
+    private string grpcEndpoint = "http://3.144.157.205:1234";
+    private string restEndpoint = "http://3.144.157.205:8080";
     private readonly ILogger<WeatherForecastController> _logger;
 
     public WeatherForecastController(ILogger<WeatherForecastController> logger)
@@ -63,7 +65,7 @@ public class WeatherForecastController : ControllerBase
         var stopwatch = new Stopwatch();
 
         string response = "";
-        using (var requestMessage = new HttpRequestMessage(HttpMethod.Get, "http://localhost:8084/stringRes/"))
+        using (var requestMessage = new HttpRequestMessage(HttpMethod.Get, restEndpoint+"/stringRes/"))
         {
             requestMessage.Headers.AcceptEncoding.Add(new StringWithQualityHeaderValue("gzip"));
             stopwatch.Start();
@@ -87,7 +89,7 @@ public class WeatherForecastController : ControllerBase
 
         var response = "";
 
-        using (var requestMessage = new HttpRequestMessage(HttpMethod.Get, "http://localhost:8088/stringRes/100KB"))
+        using (var requestMessage = new HttpRequestMessage(HttpMethod.Get, restEndpoint+"/stringRes/100KB"))
         {
             stopwatch.Start();
             var res = client.Send(requestMessage);
@@ -109,7 +111,7 @@ public class WeatherForecastController : ControllerBase
 
         var response = "";
 
-        using (var requestMessage = new HttpRequestMessage(HttpMethod.Get, "http://localhost:8088/stringRes/500KB"))
+        using (var requestMessage = new HttpRequestMessage(HttpMethod.Get, restEndpoint+"/stringRes/500KB"))
         {
             stopwatch.Start();
             var res = client.Send(requestMessage);
@@ -131,7 +133,7 @@ public class WeatherForecastController : ControllerBase
 
         var response = "";
 
-        using (var requestMessage = new HttpRequestMessage(HttpMethod.Get, "http://localhost:8088/stringRes/1MB"))
+        using (var requestMessage = new HttpRequestMessage(HttpMethod.Get, restEndpoint+"/stringRes/1MB"))
         {
             stopwatch.Start();
             var res = client.Send(requestMessage);
@@ -152,7 +154,7 @@ public class WeatherForecastController : ControllerBase
 
         var response = "";
 
-        using (var requestMessage = new HttpRequestMessage(HttpMethod.Get, "http://localhost:8088/stringRes/5MB"))
+        using (var requestMessage = new HttpRequestMessage(HttpMethod.Get, restEndpoint+"/stringRes/5MB"))
         {
             stopwatch.Start();
             var res = client.Send(requestMessage);
@@ -162,7 +164,29 @@ public class WeatherForecastController : ControllerBase
 
         return response;
     }
+    
+    [HttpGet]
+    [Route("/http1/compress/stringResponse/10MB")]
+    public async Task<string> GetRestApiStringResponse10Mb()
+    {
+        HttpClient client = new HttpClient();
 
+        var stopwatch = new Stopwatch();
+
+
+        var response = "";
+
+        using (var requestMessage = new HttpRequestMessage(HttpMethod.Get, restEndpoint+"/stringRes/10MB"))
+        {
+            stopwatch.Start();
+            var res = client.Send(requestMessage);
+            response =  await res.Content.ReadAsStringAsync();
+            stopwatch.Stop();
+        }
+
+        return response;
+    }
+    
 
     [HttpGet]
     [Route("/http2/stringResponse/")]
@@ -290,7 +314,7 @@ public class WeatherForecastController : ControllerBase
         });
        
         
-        using var channel = GrpcChannel.ForAddress("http://localhost:8082");
+        using var channel = GrpcChannel.ForAddress(grpcEndpoint);
         //var client = new Greeter.GreeterClient(channel);
         var client = new Greeter.GreeterClient(channel);
         var stopwatch = new Stopwatch();
@@ -314,7 +338,7 @@ public class WeatherForecastController : ControllerBase
         });
        
         
-        using var channel = GrpcChannel.ForAddress("http://localhost:8082");
+        using var channel = GrpcChannel.ForAddress(grpcEndpoint);
         //var client = new Greeter.GreeterClient(channel);
         var client = new Greeter.GreeterClient(channel);
         var stopwatch = new Stopwatch();
@@ -338,7 +362,7 @@ public class WeatherForecastController : ControllerBase
         });
        
         
-        using var channel = GrpcChannel.ForAddress("http://localhost:8082");
+        using var channel = GrpcChannel.ForAddress(grpcEndpoint);
         //var client = new Greeter.GreeterClient(channel);
         var client = new Greeter.GreeterClient(channel);
         var stopwatch = new Stopwatch();
@@ -362,12 +386,36 @@ public class WeatherForecastController : ControllerBase
         });
        
         
-        using var channel = GrpcChannel.ForAddress("http://localhost:8082");
+        using var channel = GrpcChannel.ForAddress(grpcEndpoint);
         //var client = new Greeter.GreeterClient(channel);
         var client = new Greeter.GreeterClient(channel);
         var stopwatch = new Stopwatch();
         stopwatch.Start();
         var reply = client.SayHello_5MB(new HelloRequest());
+        stopwatch.Stop();
+        
+        Console.WriteLine("Time Consumed for getting data is :::: " + stopwatch.ElapsedMilliseconds);
+        return ("Greeting: " + reply);
+    }
+    
+    [HttpGet]
+    [Route("/gRpcApi/ServerCompression/10MB")]
+    public async Task<string> GetGrpcApiWeatherForecast10Mb()
+    {
+        var loggerFactory = LoggerFactory.Create(logging =>
+        {
+            logging.AddConsole();
+            logging.SetMinimumLevel(LogLevel.Debug);
+
+        });
+       
+        
+        using var channel = GrpcChannel.ForAddress(grpcEndpoint);
+        //var client = new Greeter.GreeterClient(channel);
+        var client = new Greeter.GreeterClient(channel);
+        var stopwatch = new Stopwatch();
+        stopwatch.Start();
+        var reply = client.SayHello_10MB(new HelloRequest());
         stopwatch.Stop();
         
         Console.WriteLine("Time Consumed for getting data is :::: " + stopwatch.ElapsedMilliseconds);

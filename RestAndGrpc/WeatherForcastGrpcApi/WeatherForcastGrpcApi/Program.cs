@@ -8,12 +8,12 @@ using CompressionLevel = System.IO.Compression.CompressionLevel;
 var builder = WebApplication.CreateBuilder(args);
 
 // Additional configuration is required to successfully run gRPC on macOS.
-builder.WebHost.ConfigureKestrel(options =>
-{
-    // Setup a HTTP/2 endpoint without TLS.
-    options.ListenLocalhost(5092, o => o.Protocols =
-        HttpProtocols.Http2);
-});
+// builder.WebHost.ConfigureKestrel(options =>
+// {
+//     // Setup a HTTP/2 endpoint without TLS.
+//     options.ListenLocalhost(1234, o => o.Protocols =
+//         HttpProtocols.Http2);
+// });
 // For instructions on how to configure Kestrel and gRPC clients on macOS, visit https://go.microsoft.com/fwlink/?linkid=2099682
 
 // Add services to the container.

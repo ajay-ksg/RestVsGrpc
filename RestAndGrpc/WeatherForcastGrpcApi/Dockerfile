@@ -3,18 +3,7 @@ WORKDIR /app
 EXPOSE 80
 EXPOSE 443
 
-FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
-WORKDIR /src
-COPY ["WeatherForcastGrpcApi/WeatherForcastGrpcApi.csproj", "WeatherForcastGrpcApi/"]
-RUN dotnet restore "WeatherForcastGrpcApi/WeatherForcastGrpcApi.csproj"
-COPY . .
-WORKDIR "/src/WeatherForcastGrpcApi"
-RUN dotnet build "WeatherForcastGrpcApi.csproj" -c Release -o /app/build
-
-FROM build AS publish
-RUN dotnet publish "WeatherForcastGrpcApi.csproj" -c Release -o /app/publish
-
 FROM base AS final
 WORKDIR /app
-COPY --from=publish /app/publish .
+COPY app  .
 ENTRYPOINT ["dotnet", "WeatherForcastGrpcApi.dll"]
