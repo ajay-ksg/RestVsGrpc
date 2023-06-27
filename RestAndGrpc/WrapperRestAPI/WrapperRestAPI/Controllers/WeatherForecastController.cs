@@ -9,8 +9,8 @@ namespace WrapperRestAPI.Controllers;
 [Route("[controller]")]
 public class WeatherForecastController : ControllerBase
 {
-    private string grpcEndpoint = "http://3.144.157.205:1234";
-    private string restEndpoint = "http://3.144.157.205:8080";
+    private string grpcEndpoint = "http://3.144.157.205:1234"; // base url to grpc service
+    private string restEndpoint = "http://3.144.157.205:8080"; // base url for rest service
     private readonly ILogger<WeatherForecastController> _logger;
 
     public WeatherForecastController(ILogger<WeatherForecastController> logger)
